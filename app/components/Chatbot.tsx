@@ -1,4 +1,6 @@
+"use client"
 import React, { useState } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<{ user: string; bot: string }[]>([]);
@@ -16,20 +18,20 @@ const Chatbot: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: userInput }),
-      });
+      const genAI = new GoogleGenerativeAI("AIzaSyCpgaSyevRj5gq5Cz4rsN_4ro2OFOrArQk");
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+   
+    console.log(userInput)
+      const data = await model.generateContent(userInput);
+      
+    
 
-      const data = await res.json();
+    
 
       // Add bot response to chat
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: '', bot: data.response || 'No response received from the model.' },
+        { user: '', bot: data.response.text() || 'No response received from the model.' },
       ]);
     } catch (error) {
       setMessages((prevMessages) => [
@@ -47,12 +49,12 @@ const Chatbot: React.FC = () => {
     <div style={{ width: '400px', margin: '0 auto', padding: '20px', border: '1px solid #ccc' }}>
       <h2>Chatbot</h2>
       <div style={{ height: '300px', overflowY: 'auto', marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
-        {messages.map((message, index) => (
+        {messages?messages.map((message, index) => (
           <div key={index}>
-            {message.user && <div><strong>You:</strong> {message.user}</div>}
-            {message.bot && <div><strong>Bot:</strong> {message.bot}</div>}
+            {message.user && <div className=' ' style={{backgroundColor: "azure",  padding: "5px"}}><strong>You:</strong> {message.user}</div>}
+            {message.bot && <div style={{backgroundColor: "orange", color: "white", padding: "5px", marginTop:"10px"}}><strong>Bot:</strong> {message.bot}</div>}
           </div>
-        ))}
+        )):"Loading..."}
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -62,9 +64,9 @@ const Chatbot: React.FC = () => {
           onChange={(e) => setUserInput(e.target.value)}
           placeholder="Type your message..."
           disabled={loading}
-          style={{ width: '100%', padding: '8px' }}
+          style={{ width: '100%', padding: '8px', border: 'solid 2px' }}
         />
-        <button type="submit" disabled={loading} style={{ padding: '8px', marginTop: '10px' }}>
+        <button type="submit" disabled={loading} style={{ padding: '8px', marginTop: '10px', border: "solid 2px" }}>
           {loading ? 'Sending...' : 'Send'}
         </button>
       </form>

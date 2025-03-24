@@ -36,7 +36,7 @@ const Chatbot: React.FC = () => {
     } catch (error) {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: '', bot: 'Error occurred, please try again!' },
+        { user: '', bot: `${error}`},
       ]);
     } finally {
       setUserInput('');
